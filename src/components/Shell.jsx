@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Map from './Map'
 import HowEarlWorks from './HowEarlWorks'
 
-export default function Shell({ onReset, returning }) {
+export default function Shell({ onReset, returning, onNodeClick }) {
   const [howOpen, setHowOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('map')
   const tabs = ['map','library','path']
@@ -10,7 +10,7 @@ export default function Shell({ onReset, returning }) {
   return (
     <div style={{ position:'relative', width:'100%', height:'100%', background:'var(--bg)', overflow:'hidden' }}>
       <Grain />
-      <div style={{ position:'absolute', inset:0 }}><Map shell={true} /></div>
+      <div style={{ position:'absolute', inset:0 }}><Map shell={true} onNodeClick={onNodeClick} /></div>
       {returning && (
         <div style={{ position:'absolute', top:0, left:0, right:0, zIndex:60, background:'rgba(18,13,10,0.92)', borderBottom:'1px solid var(--bdr)', padding:'10px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', backdropFilter:'blur(8px)' }}>
           <div style={{ fontFamily:'var(--fb)', fontSize:13, color:'var(--t2)', fontStyle:'italic' }}>Welcome back. <span style={{ fontFamily:'var(--fd)', fontSize:15, color:'var(--al)', fontWeight:600, fontStyle:'normal' }}>Earl</span> is where you left it.</div>
