@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:#0F0C0A; --bg2:#15100C; --bg3:#1C1510; --bg4:#231A12;
+  --a:#C8922A; --al:#DBB183; --ad:#9C6D32; --ag:rgba(200,146,42,0.08); --ag2:rgba(200,146,42,0.14);
+  --t:#F5EDD8; --t2:#A8906A; --t3:#604E38; --t4:#3A2A1A;
+  --bdr:rgba(200,146,42,0.12); --bdrS:rgba(200,146,42,0.26);
+  --fd:'Cormorant Garamond',Georgia,serif;
+  --fb:'Source Serif 4',Georgia,serif;
+  --fm:'JetBrains Mono','Courier New',monospace;
+  --r:6px;
+}
