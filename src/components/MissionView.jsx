@@ -27,10 +27,10 @@ export default function MissionView({ chapterId, onChapterComplete }) {
   }
 
   return (
-    <div style={{ display:'grid', gridTemplateColumns:'200px 1fr 280px', height:'100%', overflow:'hidden' }}>
+    <div style={{ position:'fixed', inset:0, top:54, display:'grid', gridTemplateColumns:'200px 1fr 280px', height:'calc(100% - 54px)', overflow:'hidden' }}>
 
       {/* LEFT — Living Map */}
-      <div style={{ borderRight:'1px solid var(--bdr)', background:'var(--bg2)', padding:'18px 12px', overflow:'hidden', display:'flex', flexDirection:'column', gap:12 }}>
+      <div style={{ borderRight:'1px solid var(--bdr)', background:'var(--bg2)', padding:'18px 12px', overflow:'hidden', height:'100%', display:'flex', flexDirection:'column', gap:12 }}>
         <div style={{ fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.17em', textTransform:'uppercase', color:'var(--t3)' }}>Living Map</div>
         <div style={{ flex:1, minHeight:0 }}>
           <Map shell={true} />
@@ -42,7 +42,7 @@ export default function MissionView({ chapterId, onChapterComplete }) {
       </div>
 
       {/* CENTER — Reading panel */}
-      <div style={{ overflowY:'auto', padding:'28px 36px', background:'var(--bg)' }}>
+      <div style={{ overflowY:'auto', height:'100%', padding:'28px 36px', background:'var(--bg)' }}>
         <div style={{ fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.2em', color:'var(--ad)', textTransform:'uppercase', marginBottom:10 }}>{chapter.chapterLabel}</div>
         <div style={{ fontFamily:'var(--fd)', fontSize:36, fontWeight:700, color:'var(--t)', lineHeight:1.12, marginBottom:8 }}>{chapter.title}</div>
         <div style={{ fontSize:15, color:'var(--t2)', fontStyle:'italic', marginBottom:30, lineHeight:1.65 }}>{chapter.subtitle}</div>

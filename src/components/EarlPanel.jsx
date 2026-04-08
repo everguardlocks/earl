@@ -8,7 +8,7 @@ async function askEarl(question, chapterTitle) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 600,
-      system: `You are Earl. The user is currently studying: "${chapterTitle}". Answer their question directly. 3 paragraphs maximum. No bullet points. No hedging. Speak like someone who knows this cold and remembers what it felt like not to.`,
+      system: `You are Earl. Answer in 2 paragraphs maximum. Short sentences. No bullet points. No hedging. Direct. The user is reading about: "${chapterTitle}". Answer their specific question only.`,
       messages: [{ role: 'user', content: question }]
     })
   })
@@ -39,9 +39,10 @@ export default function EarlPanel({ chapter, peakShown }) {
   }
 
   return (
+    <div style={{ position:'relative', height:'100%', overflow:'hidden' }}>
     <div style={{ display:'flex', flexDirection:'column', height:'100%', background:'var(--bg2)', borderLeft:'1px solid var(--bdr)' }}>
       <div style={{ fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.17em', textTransform:'uppercase', color:'var(--t3)', padding:'18px 18px 10px' }}>Earl</div>
-      <div style={{ flex:1, overflowY:'auto', padding:'0 18px 12px', display:'flex', flexDirection:'column', gap:12 }}>
+      <div style={{ flex:1, overflowY:'auto', minHeight:0, padding:'0 18px 12px', display:'flex', flexDirection:'column', gap:12 }}>
         {messages.map((msg, i) => (
           <div key={i} style={{
             background: msg.type === 'user' ? 'var(--bg4)' : 'var(--bg3)',
@@ -72,6 +73,7 @@ export default function EarlPanel({ chapter, peakShown }) {
         <button onClick={submit} disabled={loading} style={{ background:'none', border:'1px solid var(--a)', color:'var(--al)', width:38, borderRadius:6, cursor:'pointer', fontSize:14 }}>→</button>
       </div>
       <style>{`@keyframes dotP{0%,80%,100%{opacity:0.3;transform:scale(0.9)}40%{opacity:1;transform:scale(1.15)}}`}</style>
+    </div>
     </div>
   )
 }
