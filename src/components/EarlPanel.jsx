@@ -1,14 +1,44 @@
 import { useState } from 'react'
 import EarlMessage from './EarlMessage'
 
-async function askEarl(question, chapterTitle) {
+async function askEarl(question, chapterTitle, currentPage) {
   const res = await fetch('/api/earl', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 600,
-      system: `You are Earl. Answer in 2 paragraphs maximum. Short sentences. No bullet points. No hedging. Direct. The user is reading about: "${chapterTitle}". Answer their specific question only.`,
+      system: `You are Earl.
+
+CHARACTER:
+Earl learned everything the hard way — which means he learned it the real way. He came from somewhere without advantages and reverse engineered every system he encountered. He is not a teacher. He is the person who figured it out and came back to show you the exact door he found. He speaks from the other side of the journey you are on. Not above you. Ahead of you.
+
+He tells the truth because that is the only thing that actually helped him. He does not perform expertise. He does not motivate. He does not celebrate. He states what is true and lets the truth do the work.
+
+VOICE ARCHITECTURE:
+When opening or introducing — speak with Belfort's urgency and forward momentum. No warm-up. No preamble. Start in the middle of the thought.
+When explaining — speak with Mehdi Hasan's precision. Name the mechanism exactly. Dismantle wrong assumptions directly. No hedging.
+When responding to wrong answers — Mehdi diagnoses, Chappelle lands it. Name what mental model produced the wrong answer. Then reframe it with unexpected clarity.
+When delivering the edge — Goggins and Wilde simultaneously. The uncomfortable truth, stated beautifully.
+When using analogies — Chappelle dominant. Universal, disarming, lands before the person realizes it landed.
+When closing — Belfort opens the next loop, Chappelle lands the last line.
+
+RULES — never break these:
+- Never say "Great answer", "Well done", "I love that", or any validation opener
+- Never use bullet points
+- Never hedge or qualify — state it or don't
+- Never speak at the person — always to them
+- Never say "Incorrect. Try again."
+- Never explain what you are about to do — just do it
+- Speak to who they are becoming, not who they currently are
+- End every response with one short line — a command or a statement. One to four words. No period needed
+- Maximum 4 short paragraphs unless the concept demands more
+- Reference the user's actual words when responding to their specific question
+
+CURRENT CONTEXT:
+The user is studying: "${chapterTitle}"
+They are on page: ${currentPage}
+`,
       messages: [{ role: 'user', content: question }]
     })
   })
@@ -16,7 +46,7 @@ async function askEarl(question, chapterTitle) {
   return data.content[0].text
 }
 
-export default function EarlPanel({ chapter, peakShown }) {
+export default function EarlPanel({ chapter, currentPage }) {
   const [messages, setMessages] = useState([
     { type: 'earl', text: `You're in Chapter 1. Read through the concepts. When you're ready — the check card is at the bottom.\n\nIf anything doesn't land, ask me below.` }
   ])
@@ -24,18 +54,22 @@ export default function EarlPanel({ chapter, peakShown }) {
   const [loading, setLoading] = useState(false)
 
   const submit = async () => {
+    setLoading(false) // reset any stuck state
     const q = input.trim()
-    if (!q || loading) return
+    if (!q) return
+    console.log('submitting:', q)
     setInput('')
     setMessages(m => [...m, { type: 'user', text: q }])
     setLoading(true)
     try {
-      const resp = await askEarl(q, chapter.title)
+      const resp = await askEarl(q, chapter.title, currentPage)
       setMessages(m => [...m, { type: 'earl', text: resp }])
-    } catch {
+    } catch (err) {
+      console.error('Earl API error:', err)
       setMessages(m => [...m, { type: 'earl', text: "Can't reach the server right now. Try again in a moment." }])
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
@@ -62,7 +96,11 @@ export default function EarlPanel({ chapter, peakShown }) {
           </div>
         )}
       </div>
-      <div style={{ padding:'12px 16px', borderTop:'1px solid var(--bdr)', display:'flex', gap:8 }}>
+      <div style={{ padding:'12px 16px', borderTop:'1px solid var(--bdr)', display:'flex', flexDirection:'column', gap:8 }}>
+        {loading && (
+          <button onClick={() => setLoading(false)} style={{ background:'none', border:'1px solid var(--bdr)', color:'var(--t3)', fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.12em', textTransform:'uppercase', padding:'4px 10px', borderRadius:4, cursor:'pointer', alignSelf:'flex-start' }}>Reset</button>
+        )}
+        <div style={{ display:'flex', gap:8 }}>
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -71,6 +109,7 @@ export default function EarlPanel({ chapter, peakShown }) {
           style={{ flex:1, background:'var(--bg3)', border:'1px solid var(--bdr)', borderRadius:6, color:'var(--t)', fontFamily:'var(--fb)', fontSize:13, padding:'10px 14px', outline:'none' }}
         />
         <button onClick={submit} disabled={loading} style={{ background:'none', border:'1px solid var(--a)', color:'var(--al)', width:38, borderRadius:6, cursor:'pointer', fontSize:14 }}>→</button>
+        </div>
       </div>
       <style>{`@keyframes dotP{0%,80%,100%{opacity:0.3;transform:scale(0.9)}40%{opacity:1;transform:scale(1.15)}}`}</style>
     </div>
