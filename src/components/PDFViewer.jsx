@@ -10,8 +10,13 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 const pdfStyles = `
 .react-pdf__Page {
-  box-shadow: 0 4px 32px rgba(0,0,0,0.5);
-  border-radius: 4px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.5) !important;
+  border-radius: 4px !important;
+}
+
+.react-pdf__Page canvas {
+  filter: sepia(0.2) brightness(0.88) contrast(0.95) !important;
+  border-radius: 4px !important;
 }
 `
 
@@ -56,7 +61,7 @@ export default function PDFViewer({ chapterId, onPageChange }) {
       </div>
 
       {/* PDF canvas area */}
-      <div ref={containerRef} style={{ flex:1, overflowY:'auto', overflowX:'hidden', display:'flex', justifyContent:'center', padding:'24px 20px', background:'#1a1410' }}>
+      <div ref={containerRef} style={{ flex:1, overflowY:'auto', overflowX:'hidden', display:'flex', justifyContent:'center', padding:'24px 20px', background:'#111009' }}>
         {loading && (
           <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100%', fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.14em', color:'var(--t3)', textTransform:'uppercase' }}>
             Loading document...
