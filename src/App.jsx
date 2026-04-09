@@ -3,17 +3,25 @@ import Landing from './screens/Landing'
 import Shell from './components/Shell'
 import MissionView from './components/MissionView'
 import { storage } from './lib/storage'
+import { DOMAINS, UNLOCK_CHAIN } from './data/curriculum'
 
 export default function App() {
   const [phase, setPhase] = useState(storage.isOnboarded() ? 'shell' : 'landing')
   const [activeChapter, setActiveChapter] = useState(null)
+  const [initialPage, setInitialPage] = useState(26)
 
-  const handleChapterComplete = (unlocks) => {
-    // Save unlocked nodes to localStorage
+  const handleNodeClick = (nodeId) => {
+    const domain = DOMAINS[0]
+    const node = domain.nodes.find(n => n.id === nodeId)
+    setInitialPage(node ? node.pdfPages[0] : 26)
+    setActiveChapter(nodeId)
+  }
+
+  const handleChapterComplete = (chapterId) => {
+    const toUnlock = UNLOCK_CHAIN[chapterId] || []
     const current = JSON.parse(localStorage.getItem('earl_unlocked') || '[]')
-    const updated = [...new Set([...current, ...unlocks])]
+    const updated = [...new Set([...current, chapterId, ...toUnlock])]
     localStorage.setItem('earl_unlocked', JSON.stringify(updated))
-    setActiveChapter(null)
   }
 
   if (phase === 'landing') return <Landing onComplete={() => setPhase('shell')} />
@@ -25,7 +33,7 @@ export default function App() {
         <button onClick={() => setActiveChapter(null)} style={{ background:'none', border:'none', color:'var(--t3)', fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.14em', textTransform:'uppercase', cursor:'pointer' }}>← Back to map</button>
       </nav>
       <div style={{ position:'absolute', top:54, bottom:0, left:0, right:0 }}>
-        <MissionView chapterId={activeChapter} onChapterComplete={handleChapterComplete} />
+        <MissionView initialPage={initialPage} onChapterComplete={handleChapterComplete} />
       </div>
     </div>
   )
@@ -34,7 +42,7 @@ export default function App() {
     <Shell
       onReset={() => { storage.reset(); setPhase('landing') }}
       returning={true}
-      onNodeClick={() => setActiveChapter('linux-01')}
+      onNodeClick={handleNodeClick}
     />
   )
 }

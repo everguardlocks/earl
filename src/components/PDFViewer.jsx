@@ -16,15 +16,29 @@ const BEELINE_COLORS = [
   '#B7770D',
 ]
 
-export default function PDFViewer({ chapterId, onPageChange }) {
+export default function PDFViewer({ initialPage, onPageChange, onTextSelect }) {
   const [numPages, setNumPages] = useState(null)
-  const [pageNumber, setPageNumber] = useState(1)
+  const [pageNumber, setPageNumber] = useState(initialPage || 1)
   const [containerWidth, setContainerWidth] = useState(600)
   const [beelineEnabled, setBeelineEnabled] = useState(true)
 
   const containerRef = useCallback(node => {
     if (node) setContainerWidth(node.getBoundingClientRect().width - 4)
   }, [])
+
+  useEffect(() => {
+    const handleSelection = () => {
+      const selection = window.getSelection()
+      if (!selection || selection.isCollapsed) return
+      const text = selection.toString().trim()
+      console.log('selection:', text.length, text.slice(0, 50))
+      if (text.length > 10 && onTextSelect) {
+        onTextSelect(text)
+      }
+    }
+    document.addEventListener('mouseup', handleSelection)
+    return () => document.removeEventListener('mouseup', handleSelection)
+  }, [onTextSelect])
 
   const applyBeeLine = () => {
     const textLayer = document.querySelector('.react-pdf__Page__textContent')

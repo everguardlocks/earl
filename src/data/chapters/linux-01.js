@@ -1,11 +1,11 @@
 export default {
   id: 'linux-01',
   domain: 'linux',
-  title: 'Introduction to Linux',
+  title: 'What Is the Shell?',
   subtitle: 'What it is, why it matters, and why you are already more prepared than you think.',
   chapterLabel: 'Chapter 1 of 36 · Linux & Systems',
   nextChapter: 'linux-02',
-  unlocks: ['linux-02'],
+  unlocks: ['linux-02', 'linux-03'],
 
   concepts: [
     {

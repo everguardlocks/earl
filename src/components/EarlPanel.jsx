@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import EarlMessage from './EarlMessage'
+import { getChapterFromPage, getChapterTitle } from '../data/curriculum'
 
 async function askEarl(question, chapterTitle, currentPage) {
+  console.log('askEarl called:', { question, chapterTitle, currentPage })
+  const pageChapterId = getChapterFromPage(currentPage)
+  console.log('page chapter:', pageChapterId, getChapterTitle(pageChapterId))
+  const pageChapterTitle = pageChapterId ? getChapterTitle(pageChapterId) : chapterTitle
+
   const res = await fetch('/api/earl', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -37,8 +43,8 @@ RULES — never break these:
 
 CURRENT CONTEXT:
 The user is studying: "${chapterTitle}"
-They are on page: ${currentPage}
-`,
+They are currently reading: "${pageChapterTitle}" (page ${currentPage})
+${pageChapterId && pageChapterId !== chapterTitle ? `Note: They are reading ahead in "${pageChapterTitle}" — respond to their current page context.` : ''}`,
       messages: [{ role: 'user', content: question }]
     })
   })
@@ -46,7 +52,7 @@ They are on page: ${currentPage}
   return data.content[0].text
 }
 
-export default function EarlPanel({ chapter, currentPage }) {
+export default function EarlPanel({ chapter, currentPage, selectedText, onClearSelection }) {
   const [messages, setMessages] = useState([
     { type: 'earl', text: `You're in Chapter 1. Read through the concepts. When you're ready — the check card is at the bottom.\n\nIf anything doesn't land, ask me below.` }
   ])
@@ -54,15 +60,14 @@ export default function EarlPanel({ chapter, currentPage }) {
   const [loading, setLoading] = useState(false)
 
   const submit = async () => {
-    setLoading(false) // reset any stuck state
+    setLoading(false)
     const q = input.trim()
     if (!q) return
-    console.log('submitting:', q)
     setInput('')
     setMessages(m => [...m, { type: 'user', text: q }])
     setLoading(true)
     try {
-      const resp = await askEarl(q, chapter.title, currentPage)
+      const resp = await askEarl(q, chapter?.title || 'Introduction', currentPage)
       setMessages(m => [...m, { type: 'earl', text: resp }])
     } catch (err) {
       console.error('Earl API error:', err)
@@ -97,6 +102,23 @@ export default function EarlPanel({ chapter, currentPage }) {
         )}
       </div>
       <div style={{ padding:'12px 16px', borderTop:'1px solid var(--bdr)', display:'flex', flexDirection:'column', gap:8 }}>
+        {selectedText && (
+          <div style={{ padding:'10px 14px', background:'var(--bg4)', border:'1px solid var(--bdrS)', borderRadius:6 }}>
+            <div style={{ fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.14em', color:'var(--ad)', textTransform:'uppercase', marginBottom:6 }}>Selected text</div>
+            <div style={{ fontSize:12, color:'var(--t2)', fontStyle:'italic', lineHeight:1.6, marginBottom:10 }}>"{selectedText.slice(0,120)}{selectedText.length > 120 ? '...' : ''}"</div>
+            <div style={{ display:'flex', gap:8 }}>
+              <button onClick={() => {
+                setInput(`Explain this: "${selectedText}"`)
+                onClearSelection()
+              }} style={{ background:'none', border:'1px solid var(--a)', color:'var(--al)', fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.12em', textTransform:'uppercase', padding:'6px 12px', borderRadius:4, cursor:'pointer' }}>
+                Ask Earl
+              </button>
+              <button onClick={onClearSelection} style={{ background:'none', border:'1px solid var(--bdr)', color:'var(--t3)', fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.12em', textTransform:'uppercase', padding:'6px 12px', borderRadius:4, cursor:'pointer' }}>
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
         {loading && (
           <button onClick={() => setLoading(false)} style={{ background:'none', border:'1px solid var(--bdr)', color:'var(--t3)', fontFamily:'var(--fm)', fontSize:9, letterSpacing:'0.12em', textTransform:'uppercase', padding:'4px 10px', borderRadius:4, cursor:'pointer', alignSelf:'flex-start' }}>Reset</button>
         )}
